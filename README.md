@@ -24,6 +24,10 @@ Mount this folder to your VM or clone the repository and run configuration from 
 multipass mount ../cloud-devops wordpress:/home/ubuntu/cloud-devops
 ```
 
+```bash
+git clone https://github.com/jamfire/multipass-devops.git devops
+```
+
 SSH into your VM and use ```cloud-init``` to install your system. You will need to update your public ssh_authorized_key under ```users``` and change your username if you would like. The following commands assume a clean install of ubuntu where no other cloud configurations have been applied.
 
 ```bash
