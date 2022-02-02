@@ -1,0 +1,213 @@
+# update packages
+package_update: true
+
+# packages to install
+packages:
+  - nginx
+  - mariadb-server
+  - redis-server
+  - aspell 
+  - clamav 
+  - git
+  - graphviz 
+  - ghostscript 
+  - php7.4-cli 
+  - php7.4-curl 
+  - php7.4-fpm
+  - php7.4-gd 
+  - php7.4-imagick 
+  - php7.4-intl 
+  - php7.4-mbstring 
+  - php7.4-mysql 
+  - php7.4-ldap 
+  - php7.4-opcache
+  - php7.4-pspell 
+  - php7.4-redis
+  - php7.4-soap 
+  - php7.4-xml 
+  - php7.4-xmlrpc 
+  - php7.4-zip 
+
+# add developer user
+users:
+  - default
+  - name: developer
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3HmIwJ7hOeUbP69BKcuRnhmrkicZJMGYUeDfN1XH/E kaleb@jamfire.io
+
+# write files needed for wordpress app
+write_files:
+  - path: /etc/nginx/sites-available/default
+    content: |
+      server {
+        listen          80;
+        listen          [::]:80;
+        server_name     _;
+        return          301 https://$host$request_uri;
+      }
+
+      server {
+        # server information
+        listen          443         ssl http2;
+        listen          [::]:443    ssl http2;
+        server_name _;
+
+        # SSL
+        ssl_protocols               TLSv1 TLSv1.1 TLSv1.2;
+        ssl_prefer_server_ciphers   on;
+        ssl_ciphers                 "ECDH+AESGCM:ECDH+AES256:ECDH+AES128:!ADH:!AECDH:!MD5;";
+
+        ssl_certificate             /etc/ssl/certs/nginx-selfsigned.crt;
+        ssl_certificate_key         /etc/ssl/private/nginx-selfsigned.key;
+        # End SSL
+
+        # Logging
+        access_log  /var/log/nginx/access.log;
+        error_log   /var/log/nginx/error.log;
+        # End Logging
+
+        # Configuration
+        root /var/www/moodle;
+        index index.php;
+        client_max_body_size 100M;
+        autoindex off;
+
+        # This passes 404 pages to Moodle so they can be themed
+        error_page 404 /error/index.php;    
+        error_page 403 =404 /error/index.php;
+
+        # Hide all dot files but allow "Well-Known URIs" as per RFC 5785
+        location ~ /\.(?!well-known).* {
+          return 404;
+        }
+
+        # Moodle rules.
+        location / {
+          try_files $uri $uri/ =404;
+        }
+
+        # Dataroot
+        location /dataroot/ {
+          internal;
+          alias /var/www/moodledata/;
+        }
+
+        # Pass all .php files onto a php-fpm/php-fcgi server.
+        location ~ [^/].php(/|$) {
+          fastcgi_split_path_info   ^(.+\.php)(/.+)$;
+          fastcgi_index             index.php;
+          fastcgi_pass              unix:/var/run/php/php7.4-fpm.sock;
+          include                   fastcgi_params;
+          fastcgi_param             PATH_INFO $fastcgi_path_info;
+          fastcgi_param             SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        }
+
+        # This should be after the php fpm rule and very close to the last nginx ruleset.
+        # Don't allow direct access to various internal files. See MDL-69333
+        location ~ (/vendor/|/node_modules/|composer\.json|/readme|/README|readme\.txt|/upgrade\.txt|db/install\.xml|/fixtures/|/behat/|phpunit\.xml|\.lock|environment\.xml) {
+          deny all;
+          return 404;
+        }
+      }
+    owner: 'root:root'
+    permissions: '0640'
+    defer: true
+  - path: /home/ubuntu/config.php
+    content: | 
+      <?php  // Moodle configuration file
+
+        unset($CFG);
+        global $CFG;
+        $CFG = new stdClass();
+
+        $CFG->dbtype    = 'mariadb';
+        $CFG->dblibrary = 'native';
+        $CFG->dbhost    = 'localhost';
+        $CFG->dbname    = 'MOODLE_DB_NAME';
+        $CFG->dbuser    = 'MOODLE_DB_USER';
+        $CFG->dbpass    = 'MOODLE_DB_PASS';
+        $CFG->prefix    = 'mdl_';
+        $CFG->dboptions = array (
+          'dbpersist' => 0,
+          'dbport' => 3306,
+          'dbsocket' => '',
+          'dbcollation' => 'utf8mb4_unicode_ci',
+        );
+
+        $CFG->wwwroot   = 'https://moodle.local';
+        $CFG->dataroot  = '/var/moodledata';
+        $CFG->admin     = 'admin';
+
+        $CFG->directorypermissions = 0777;
+
+        require_once(__DIR__ . '/lib/setup.php');
+
+        // There is no php closing tag in this file,
+        // it is intentional because it prevents trailing whitespace problems!
+    owner: 'root:root'
+    permissions: '0644'
+  - path: /etc/cron.d/moodle
+    content: |
+      * * * * * /usr/bin/php /var/www/moodle/admin/cli/cron.php >/dev/null
+    append: true
+  - path: /etc/php/7.4/fpm/conf.d/custom.ini
+    content: |
+      file_uploads = On
+      allow_url_fopen = On
+      short_open_tag = On
+      memory_limit = 256M
+      cgi.fix_pathinfo = 0
+      upload_max_filesize = 100M
+      max_execution_time = 360
+      post_max_size = 64M
+      date.timezone = America/New_York
+      max_input_vars = 5000
+    owner: 'root:root'
+    permissions: '0644'
+    
+runcmd:
+
+  # variables
+  - export MARIA_DB_PASS=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+  - export MDL_USER=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+  - export MDL_PASS=$(LC_ALL=C tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+  - export MDL_DB=moodle
+  - export MDL_ENV=production
+  - export DOMAIN=moodle.local
+
+  # self signed cert for nginx
+  - sudo openssl req -x509 -nodes -days 365 -subj '/CN=moodle.local/O=Moodle/C=US' -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+  
+  # mariadb setup
+  - sudo mysql -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  - sudo mysql -e "CREATE USER '${MDL_USER}'@'localhost' IDENTIFIED BY '${MDL_PASS}';"
+  - sudo mysql -e "GRANT ALL PRIVILEGES ON ${MDL_DB}.* TO '${MDL_USER}'@'localhost';"
+  - sudo mysql -e "FLUSH PRIVILEGES;"
+
+  # moodle download and install
+  - cd /var/www
+  - sudo git clone git://git.moodle.org/moodle.git
+  - cd moodle
+  - sudo git branch --track MOODLE_311_STABLE origin/MOODLE_311_STABLE
+  - sudo git checkout MOODLE_311_STABLE
+  - sudo mkdir /var/moodledata
+  - sudo chown -R www-data /var/moodledata
+  - sudo chmod -R 777 /var/moodledata
+  - sudo chmod -R 0755 /var/www/moodle
+
+  # update moodle config 
+  - sudo sed -i "s/MOODLE_DB_NAME/moodle/g" /home/ubuntu/config.php
+  - sudo sed -i "s/MOODLE_DB_USER/$MDL_USER/g" /home/ubuntu/config.php
+  - sudo sed -i "s/MOODLE_DB_PASS/$MDL_PASS/g" /home/ubuntu/config.php
+  - sudo mv /home/ubuntu/config.php /var/www/moodle/config.php
+
+  # system
+  - echo "# delete this file" >> /home/ubuntu/.keyfile
+  - echo "mariadb_password=${MARIA_DB_PASS}" >> /home/ubuntu/.keyfile
+  - echo "moodledb_username=${MDL_USER}" >> /home/ubuntu/.keyfile
+  - echo "moodledb_password=${MDL_PASS}" >> /home/ubuntu/.keyfile
+  - echo "moodledb_database=moodle" >> /home/ubuntu/.keyfile
+
+  # nginx setup
+  - sudo systemctl restart nginx
