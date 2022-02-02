@@ -18,7 +18,7 @@ This would create an Ubuntu instance with the host name ```wordpress``` installe
 
 ## After VM Creation
 
-Mount this folder to your VM or clone the repository and run configuration from the commandline.
+Mount this folder to your VM or clone the repository and run configuration from the commandline. Update environment variables in the ```runcmd``` module to meet your own needs.
 
 ```bash
 multipass mount ../cloud-devops wordpress:/home/ubuntu/cloud-devops
