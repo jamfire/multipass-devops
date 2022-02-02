@@ -38,3 +38,14 @@ sudo cloud-init -f ./devops/wp-cloud-config.yml modules -m final
 ## Multipass Domain Mapping
 
 A ```multipass-hosts.sh``` bash script has been included with this repository. Running this script will automatically update your ```/etc/hosts``` file with your multipass vm's. The script will take the hostname and ip of each of your running multipass vm's and add them to the end of your hosts file.
+
+You will see output similar to this in your hosts file:
+
+```bash
+### start multipass routing ###
+
+192.168.64.58 wordpress.local
+192.168.64.57 moodle.local
+
+### end multipass routing ###
+```
