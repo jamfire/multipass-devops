@@ -1,0 +1,58 @@
+# update packages
+package_update: true
+
+# packages to install
+packages:
+  - apt-transport-https
+  - expect
+
+# write files
+write_files:
+  - path: /home/ubuntu/secure-es.exp
+    content: |
+      #!/usr/bin/expect -f
+
+      set force_conservative 0  ;# set to 1 to force conservative mode even if
+              ;# script wasn't run conservatively originally
+      if {$force_conservative} {
+        set send_slow {1 .1}
+        proc send {ignore arg} {
+          sleep .1
+          exp_send -s -- $arg
+        }
+      }
+
+      set timeout -1
+      spawn /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+      match_max 100000
+      expect -exact "Initiating the setup of passwords for reserved users elastic,apm_system,kibana,kibana_system,logstash_system,beats_system,remote_monitoring_user.\r
+      The passwords will be randomly generated and printed to the console.\r
+      Please confirm that you would like to continue \[y/N\]"
+      send -- "y\r"
+      expect eof    
+    owner: 'ubuntu:ubuntu'
+    permissions: '0754'
+
+runcmd:
+
+  # constants
+  - PUBLIC_IP=$(hostname -I | awk '{print $1}')
+  - NODE_NAME=node-1
+
+  # install elastic search
+  - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+  - echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+  - sudo apt-get update && sudo apt-get install elasticsearch
+
+  # elasticsearch configuration
+  - 'sudo echo "discovery.type: single-node" >> /etc/elasticsearch/elasticsearch.yml'
+  - 'sudo echo "network.host: $PUBLIC_IP" >> /etc/elasticsearch/elasticsearch.yml'
+  - 'sudo echo "xpack.security.enabled: true" >> /etc/elasticsearch/elasticsearch.yml'
+
+  # start elastic search
+  - sudo systemctl daemon-reload
+  - sudo systemctl enable elasticsearch.service
+  - sudo systemctl start elasticsearch.service
+
+  # save elastic search passwords
+  - sudo bash -c 'expect /home/ubuntu/secure-es.exp > /home/ubuntu/.keystore'
