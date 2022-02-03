@@ -26,7 +26,6 @@ runcmd:
 
   # constants
   - PUBLIC_IP=$(hostname -I | awk '{print $1}')
-  - NODE_NAME=node-1
 
   # install elastic search
   - wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
