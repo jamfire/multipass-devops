@@ -6,27 +6,27 @@ packages:
   - nginx
   - mariadb-server
   - redis-server
-  - aspell 
-  - clamav 
+  - aspell
+  - clamav
   - git
-  - graphviz 
-  - ghostscript 
-  - php7.4-cli 
-  - php7.4-curl 
+  - graphviz
+  - ghostscript
+  - php7.4-cli
+  - php7.4-curl
   - php7.4-fpm
-  - php7.4-gd 
-  - php7.4-imagick 
-  - php7.4-intl 
-  - php7.4-mbstring 
-  - php7.4-mysql 
-  - php7.4-ldap 
+  - php7.4-gd
+  - php7.4-imagick
+  - php7.4-intl
+  - php7.4-mbstring
+  - php7.4-mysql
+  - php7.4-ldap
   - php7.4-opcache
-  - php7.4-pspell 
+  - php7.4-pspell
   - php7.4-redis
-  - php7.4-soap 
-  - php7.4-xml 
-  - php7.4-xmlrpc 
-  - php7.4-zip 
+  - php7.4-soap
+  - php7.4-xml
+  - php7.4-xmlrpc
+  - php7.4-zip
 
 # add developer user
 users:
@@ -36,8 +36,70 @@ users:
     ssh_authorized_keys:
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3HmIwJ7hOeUbP69BKcuRnhmrkicZJMGYUeDfN1XH/E kaleb@jamfire.io
 
-# write files needed for wordpress app
+# write files needed for moodle app
 write_files:
+  - path: /etc/ssl/certs/moodle-cert.pem
+    content: |
+      -----BEGIN CERTIFICATE-----
+      MIIEdDCCAtygAwIBAgIRAKXs0IV2iwUix/PI0XhWc74wDQYJKoZIhvcNAQELBQAw
+      gaUxHjAcBgNVBAoTFW1rY2VydCBkZXZlbG9wbWVudCBDQTE9MDsGA1UECww0a2Fs
+      ZWJoZWl0em1hbkBraG1hY2Jvb2twcm8tbTEubG9jYWwgKEthbGViIEhlaXR6bWFu
+      KTFEMEIGA1UEAww7bWtjZXJ0IGthbGViaGVpdHptYW5Aa2htYWNib29rcHJvLW0x
+      LmxvY2FsIChLYWxlYiBIZWl0em1hbikwHhcNMjIwNDAzMDM0MzQ4WhcNMjQwNzAz
+      MDM0MzQ4WjBSMScwJQYDVQQKEx5ta2NlcnQgZGV2ZWxvcG1lbnQgY2VydGlmaWNh
+      dGUxJzAlBgNVBAsMHmthbGViQG1icC5sYW4gKEthbGViIEhlaXR6bWFuKTCCASIw
+      DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAL69UDbvUebHF3TJ3N87uJdYn5pd
+      RaRL04pGZ0NbPc2GHta4SFP7/xrfswx+rjveEkyf5XxQuWi12t8JnJ/xGgZly0Wl
+      21NV2Uoc8a6TyyaT2xh0H0jXgt8AM6FFd+3I7g0yAc3MYopftURHaK2hThbvx69i
+      ZMPQks/a65haRabm5Mztk1IWNMwyiiND+D7AccsKde1Lq0Xgx7kPbSVACtUx4ljk
+      KY/3I0e9lH/gjry0M9i7ob6Au/2zdQNnGPjrHkANuI+10L2wkRpsOKMkljiSAJRg
+      fwvCNVruc97h2AwzENDgxrFv04XjoIiJ3OHA3m9Ol3R9xcvNtLU5Ha3LIpUCAwEA
+      AaNxMG8wDgYDVR0PAQH/BAQDAgWgMBMGA1UdJQQMMAoGCCsGAQUFBwMBMB8GA1Ud
+      IwQYMBaAFH6vMwLSr2sAaB5DxjfwZmTjQ11YMCcGA1UdEQQgMB6CDG1vb2RsZS5s
+      b2NhbIIOKi5tb29kbGUubG9jYWwwDQYJKoZIhvcNAQELBQADggGBABZVd1+Jemys
+      aFmwqhmSPEnlkjn45LNPcBT0aMzQan0lXDZ12c1u4zkxYyV9sgxyO7lHTjZdie46
+      drNz2RzyM+8YzC/jOv2MB4Kklw2IeymQ/kzA51yvG8HVC2Vul/wPdmu3bGMCoP+n
+      Ju8fuPzSTjWmCNRuUnOaSsQJkRCHSS3WFHMkWTE/xm4inAptd/S2dA5PFdiQ2I+9
+      BkJ8G+EeGyE8wozYYPcFhJo2rfsLZ8HhIbMVcV8wlGykLyglPYLEq5/3d3RpsAQX
+      A11kGn0wxL3EGyKx66rGOMMEyc/xjCXjg5gkZ0KtJ4A2uzAk5vkJmLNjgxImEALD
+      E4Bgg6ZKO87+0weKj9GoRnK1ivuvSj+RhqQAI7H4NWrfhGV7VgEnGtOzBY/CnA50
+      CbFG9yynScP8/SGOecD09+WdOy03zGqg2qRf4C1cqte+RFN8qSy1zzme9WLLyCIA
+      2lix+RW+ykGI/f09znW1E9e7234vf3NIaLOVPPhpwwejVjL+opDUPA==
+      -----END CERTIFICATE-----
+    owner: 'root:root'
+    permissions: '0640'
+  - path: /etc/ssl/private/moodle-key.pem
+    content: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC+vVA271Hmxxd0
+      ydzfO7iXWJ+aXUWkS9OKRmdDWz3Nhh7WuEhT+/8a37MMfq473hJMn+V8ULlotdrf
+      CZyf8RoGZctFpdtTVdlKHPGuk8smk9sYdB9I14LfADOhRXftyO4NMgHNzGKKX7VE
+      R2itoU4W78evYmTD0JLP2uuYWkWm5uTM7ZNSFjTMMoojQ/g+wHHLCnXtS6tF4Me5
+      D20lQArVMeJY5CmP9yNHvZR/4I68tDPYu6G+gLv9s3UDZxj46x5ADbiPtdC9sJEa
+      bDijJJY4kgCUYH8LwjVa7nPe4dgMMxDQ4Maxb9OF46CIidzhwN5vTpd0fcXLzbS1
+      OR2tyyKVAgMBAAECggEBAKAvn3EzVaYpp8JWUV9M6X55WDisgnMzlym2bLy9oM69
+      B6MuStf1d04bdmRU84ClxNqDIphftwaAS5sqmFYehsu+q5MHcoWvQHgkjLgfuOni
+      HIuR4kArdeZQZgvXqpuRNpLwX2F1d4BcVoBMNFY1dL6Ai0P4r0VgIhvb8CYYEgzS
+      wJe/WmMYyZdQNAbSBSW1mbSmjuOAUm4eodjFYxLVp4zK2YcV0T3JG56EStc4fgwY
+      1D+8ZkR3Rico+xNy01A9m3qFuGl+AKLVsnKXF09mqrF8ztIs0ePC/peVPSerINAB
+      xLsOc0MwZvNO4hDb3PWCZn5uaA7XMq+5HO+eZBrciwECgYEA+Sp387kpMBNhPhDU
+      d/HdnSS7csf7xQIH81d5KQcUNycHYv3exY/Y0Kbc30tu0h4Yb4EdAT9edHu3ui9g
+      mQoHwmm54FQVynZnPuUD/Y7+NtwusYQLPsikavP49I9NYGeyXsAwwo1pHOllWw3L
+      cqYDW6Czky4i2lNjHuR/xYb46EECgYEAw/iZzzu8v88AFRzeOppHgncwtih0kyse
+      5DnjMszb/ugt3Q4jlJIVD2yfFOulZG3eXdcQwSwY6dpVSKgeOhNlaK7wmL4NroYt
+      1LimHbe+YSVwvq88OOyo1ojbqS1a0Ut035Gz+RApjO7NcER6YJuy0CYWLyFZQJC4
+      VRgvKpdsxVUCgYAK5XKNdAF7Gr3b6vx/qlIYtyyDXn+CJA6Y87BWvPqDVu+ZwqRl
+      W18N8N4j3bag9bP33FuaXF0TFv335G6DAs9IDzuTtdmmGvt04qsEAabYW1SnarDb
+      NAcMrlKqz0GA/8frINiBCZIZM5O9IaNOBjiLX0G7I/9eMNta1H9J8hccgQKBgAwu
+      phEV25Po4E5vrvjholRf6G1KcoS7h34UgyUjSwG7mS5GtLuFoT2GORVp2Kw3kD0x
+      I19+yEWxRt/vY4Gktwcc6OP13I/e03aHy/vI8lLDqxCPgCThwVUkyNLpeN3N3QQQ
+      4Kk48fxK1AaImzrqMuFxnKttXUkANhVEHZp+M0rJAoGAb5Cb1s4Lx/JUfq+ilB3k
+      jebrSsUm7EW02c51G5BltrV+KPKhSKnrX0AgerAgcmQSYDRwkpwcDcnQpUdhsz8u
+      SGJmIzR7HtFo26DnMbBqo5bUxtY+s3BzovZ0lorwrwIFEKciT1x9tqrYN6QyMgqH
+      emz0Idmgnfuw8NMTvDSHTxw=
+      -----END PRIVATE KEY-----
+    owner: 'root:root'
+    permissions: '0640'
   - path: /etc/nginx/sites-available/default
     content: |
       server {
@@ -58,8 +120,8 @@ write_files:
         ssl_prefer_server_ciphers   on;
         ssl_ciphers                 "ECDH+AESGCM:ECDH+AES256:ECDH+AES128:!ADH:!AECDH:!MD5;";
 
-        ssl_certificate             /etc/ssl/certs/nginx-selfsigned.crt;
-        ssl_certificate_key         /etc/ssl/private/nginx-selfsigned.key;
+        ssl_certificate             /etc/ssl/certs/moodle-cert.pem;
+        ssl_certificate_key         /etc/ssl/private/moodle-key.pem;
         # End SSL
 
         # Logging
@@ -74,7 +136,7 @@ write_files:
         autoindex off;
 
         # This passes 404 pages to Moodle so they can be themed
-        error_page 404 /error/index.php;    
+        error_page 404 /error/index.php;
         error_page 403 =404 /error/index.php;
 
         # Hide all dot files but allow "Well-Known URIs" as per RFC 5785
@@ -114,7 +176,7 @@ write_files:
     permissions: '0640'
     defer: true
   - path: /home/ubuntu/config.php
-    content: | 
+    content: |
       <?php  // Moodle configuration file
 
         unset($CFG);
@@ -153,6 +215,7 @@ write_files:
     append: true
   - path: /etc/php/7.4/fpm/conf.d/custom.ini
     content: |
+      [php]
       file_uploads = On
       allow_url_fopen = On
       short_open_tag = On
@@ -160,12 +223,19 @@ write_files:
       cgi.fix_pathinfo = 0
       upload_max_filesize = 100M
       max_execution_time = 360
-      post_max_size = 64M
       date.timezone = America/New_York
       max_input_vars = 5000
     owner: 'root:root'
     permissions: '0644'
-    
+  - path: /etc/mysql/mariadb.conf.d/my.cnf
+    content: |
+      [mysqld]
+      innodb_file_format = Barracuda
+      innodb_file_per_table = 1
+      innodb_large_prefix = ON
+    owner: 'root:root'
+    permissions: '0644'
+
 runcmd:
 
   # variables
@@ -178,7 +248,7 @@ runcmd:
 
   # self signed cert for nginx
   - sudo openssl req -x509 -nodes -days 365 -subj '/CN=moodle.local/O=Moodle/C=US' -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
-  
+
   # mariadb setup
   - sudo mysql -e "CREATE DATABASE moodle DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
   - sudo mysql -e "CREATE USER '${MDL_USER}'@'localhost' IDENTIFIED BY '${MDL_PASS}';"
@@ -196,7 +266,7 @@ runcmd:
   - sudo chmod -R 777 /var/moodledata
   - sudo chmod -R 0755 /var/www/moodle
 
-  # update moodle config 
+  # update moodle config
   - sudo sed -i "s/MOODLE_DB_NAME/moodle/g" /home/ubuntu/config.php
   - sudo sed -i "s/MOODLE_DB_USER/$MDL_USER/g" /home/ubuntu/config.php
   - sudo sed -i "s/MOODLE_DB_PASS/$MDL_PASS/g" /home/ubuntu/config.php
